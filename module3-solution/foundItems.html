@@ -1,5 +1,8 @@
 <ul>
     <li ng-repeat="item in itemFound">
-        {{item.description}} <button class="btn btn-danger">Don't want this one!</button>
+        <p class="menu-name">{{item.name}}</p>
+        <p class="menu-description">{{item.description}}</p>
+        <button class="btn btn-danger" ng-click="onRemove({index: $index})">Don't want this one!</button>
     </li>
+    <h2 class="nothingFound" ng-hide="isEmpty()">Nothing found</h2>
 </ul>

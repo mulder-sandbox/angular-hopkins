@@ -4,31 +4,47 @@
         angular.module("Chinese-Menu", [])
             .controller("NarrowItDownController", NarrowItDownController)
             .service('MenuCategoriesService', MenuCategoriesService)
-            .constant('ApiBasePath', "http://davids-restaurant.herokuapp.com")
-            .directive('foundItems', foundItems);
+            .constant('ApiBasePath', "https://davids-restaurant.herokuapp.com")
+            .directive('foundItems', foundItemsDirective);
 
-        function foundItems() {
-            var ddo = {
-                restrict: "E",
-                templateUrl: 'foundItems.html'
+        NarrowItDownController.$inject = ["MenuCategoriesService"];
+        function NarrowItDownController(MenuCategoriesService) {
+            var menu = this;
+            var promise;
+            menu.getMatchedMenuItems = function(searchTerm) {
+                if (searchTerm === "") {
+                    menu.itemFound = [];
+                    return;
+                }
+                promise = MenuCategoriesService.getMatchedMenuItems(searchTerm);
+                promise.then(function (response) {
+                    menu.itemFound = response.data.menu_items.filter(function (element, index, array) {
+                        return element.description.toLowerCase().indexOf(searchTerm) !== -1;
+                    });
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
             };
-
-            return ddo;
+            menu.onRemove = function (index) {
+                menu.itemFound.splice(index, 1);
+            };
+            menu.isEmpty = function () {
+                return menu.itemFound == undefined || menu.itemFound.length != 0;
+            };
         }
 
-        NarrowItDownController.$inject = ["$scope", "MenuCategoriesService"];
-        function NarrowItDownController($scope, MenuCategoriesService) {
-            $scope.searchTerm = "";
-            $scope.itemFound = [];
-            $scope.getMatchedMenuItems = function(searchTerm) {
-                $scope.itemFound = MenuCategoriesService.getMatchedMenuItems(searchTerm).then(
-                    function (itemFound) {
-                        $scope.itemFound = itemFound;
-                    }
-                );
-            }
-
-
+        function foundItemsDirective() {
+            var ddo = {
+                restrict: "E",
+                templateUrl: 'foundItems.html',
+                scope: {
+                    itemFound: '<',
+                    onRemove: '&',
+                    isEmpty: '&'
+                }
+            };
+            return ddo;
         }
 
         MenuCategoriesService.$inject = ['$http', 'ApiBasePath'];
@@ -40,16 +56,8 @@
                 return $http({
                     method: "GET",
                     url: (ApiBasePath + "/menu_items.json")
-                }).then(function (response) {
-                    return response.data.menu_items.filter(function (element, index, array) {
-                        return element.description.toLowerCase().indexOf(searchTerm) !== -1;
-                    });
-                })
-                .catch(function (error) {
-                    console.log(error);
                 });
             };
-
         }
     }
 ) ();

@@ -7,17 +7,17 @@
     <link rel="stylesheet" href="styles/styles.css">
   </head>
 <body ng-app="Chinese-Menu" >
-<div class="container" ng-controller="NarrowItDownController">
+<div class="container" ng-controller="NarrowItDownController as menu">
     <h1>Narrow Down Your Chinese Menu Choice</h1>
 
     <div class="form-group">
-        <input type="text" placeholder="search term" class="form-control" ng-model="searchTerm">
+        <input type="text" placeholder="search term" class="form-control" ng-model="menu.searchTerm">
     </div>
-    <div class="form-group narrow-button" ng-click="getMatchedMenuItems(searchTerm)">
+    <div class="form-group narrow-button" ng-click="menu.getMatchedMenuItems(menu.searchTerm)">
         <button class="btn btn-primary">Narrow It Down For Me!</button>
     </div>
     <!-- found-items should be implemented as a component -->
-    <found-items found-items="...." on-remove="...."></found-items>
+    <found-items item-Found="menu.itemFound" on-remove="menu.onRemove(index)" is-empty="menu.isEmpty()"></found-items>
 </div>
 <script src="../angular.min.js"></script>
 <script src="app.js"></script>
